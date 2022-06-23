@@ -1,0 +1,56 @@
+leaning_log
+settings - определяет как джанго взаимодействует с вашей системой и управляет нашим проектом.
+urls - сообщает джанго, какие страницы следует строить в ответ на запросы браузера
+wsgi(web server gateway intervace) - помогает джанго предоставить созданные им файлы
+
+leaning_log
+models - для определения данных, которымп нужно управлять в нашем приложении
+
+1) Создаем и активируем виртуальную среду (создание - python -m venv 11-env, активация - 11_env/Scripts/activate)
+1) Установка джанго ( pip install django )
+2) создаем проект в джанго ( django-admin startproject name . ) (ls - показывает что создали новый католог name)
+3) создание базы данных ( python manage.py migrate )
+4) просмотр проекта ( python manage.py runserver )
+5) Создание структуры приложения ( активизировать вирт. среду, затем python manage.py startapp learning_logs
+6) Определение моделей ( создаем class Topic с нужными модулями)
+7) Активизация моделей (добавляем наше приложение в settings (python manage.my makemigrations name
+(определяет как изменить базу данных для информации с новыми моделями) (python manage.py migrate подтверждение успешной миграции)
+8) создание суперпользователя ( python manage.py createsuperuser)
+9) Определение модели Entry ( in models)
+
+class Entry(models.Model): # наследует от базового класса Model, как и класс Топик(выше)
+    # Информация изученная пользователем по теме
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE) # "Внешний ключ" содержит ссылку на другую запись в базе данных
+    # on_delete=models.CASCADE -(каскадное удаление) сообщает django, что при удалении темы все записи, связанные с этой темой, также должны быть удалены
+    text = models.TextField() # размер записей не ограничевается
+    date_added = models.DateTimeField(auto_now_add=True) # отображение записей в порядке их создания
+
+    class Meta:
+        verbose_name_plural = 'entries' # приказывает джанго использовать форму множественного числа при обращении более чем к 1ой записи
+    def __str__(self):
+        # Возвращает строковое представление модели
+        return f'{self.text[:50]}...' # сообщает джанго какая информация должна отображаться при обращении к отдельным записям.
+        # приказываем выводить только первые 50 символов, затем многоточие(признак вывода неполного текста)
+
+Всегда после добавления новых моделей производим миграцию базы данных. (python manage.my makemigrations name, python manage.py migrate)
+
+10) регистрация entry на админ сайте (admin.site.register(Entry)
+11) Интерактивная оболочка джанго 
+python manage.py shell - запускается интерпретатор пайтона, который может использоваться для работы с инфор-ей в базе данных проекта
+>>> from learning_logs.models import Topic
+>>> Topic.objects.all()
+
+
+<p>
+  <a href="{% url 'learning_logs:index'%}">Learning Log</a> - 
+  <a href="{% url 'learning_logs:topics'%}">Topics</a> -
+  {% if user.is_authenticated %}  {% comment %}true - прошел, false - нет. Ссылка не должна отображаться, если пользователь уже прошел процедуру входа, поэтому вкладываем в тег if  {% endcomment %}
+    Hello, {{ user.username }}.
+    <a href="{% url 'users:logout'%}">log out</a>
+  {% else %}
+    <a href="{% url 'users:register'%}">Register</a> -
+    <a href="{% url 'users:login' %}">log in</a>  {% comment %} ссылка для входа пользователей, которые еще не прошли проверку{% endcomment %}
+  {% endif %}         
+</p>
+
+{% block content %}{% endblock content %}
